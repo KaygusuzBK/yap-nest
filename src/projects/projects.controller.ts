@@ -9,7 +9,12 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto, UpdateProjectDto } from '../dto/project.dto';
@@ -24,47 +29,73 @@ export class ProjectsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new project' })
-  @ApiResponse({ status: 201, description: 'Project created successfully', type: Project })
+  @ApiResponse({
+    status: 201,
+    description: 'Project created successfully',
+    type: Project,
+  })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  create(@Body() createProjectDto: CreateProjectDto, @Request() req) {
+  create(
+    @Body() createProjectDto: CreateProjectDto,
+    @Request() req: { user: { sub: string } },
+  ) {
     return this.projectsService.create(createProjectDto, req.user.sub);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all projects for the authenticated user' })
-  @ApiResponse({ status: 200, description: 'Projects retrieved successfully', type: [Project] })
+  @ApiResponse({
+    status: 200,
+    description: 'Projects retrieved successfully',
+    type: [Project],
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  findAll(@Request() req) {
+  findAll(@Request() req: { user: { sub: string } }) {
     return this.projectsService.findAll(req.user.sub);
   }
 
   @Get('stats')
   @ApiOperation({ summary: 'Get project statistics' })
-  @ApiResponse({ status: 200, description: 'Statistics retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Statistics retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  getStats(@Request() req) {
+  getStats(@Request() req: { user: { sub: string } }) {
     return this.projectsService.getProjectStats(req.user.sub);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a specific project by ID' })
-  @ApiResponse({ status: 200, description: 'Project retrieved successfully', type: Project })
+  @ApiResponse({
+    status: 200,
+    description: 'Project retrieved successfully',
+    type: Project,
+  })
   @ApiResponse({ status: 404, description: 'Project not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Access denied' })
-  findOne(@Param('id') id: string, @Request() req) {
+  findOne(@Param('id') id: string, @Request() req: { user: { sub: string } }) {
     return this.projectsService.findOne(id, req.user.sub);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a project' })
-  @ApiResponse({ status: 200, description: 'Project updated successfully', type: Project })
+  @ApiResponse({
+    status: 200,
+    description: 'Project updated successfully',
+    type: Project,
+  })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Access denied' })
-  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto, @Request() req) {
+  update(
+    @Param('id') id: string,
+    @Body() updateProjectDto: UpdateProjectDto,
+    @Request() req: { user: { sub: string } },
+  ) {
     return this.projectsService.update(id, updateProjectDto, req.user.sub);
   }
 
@@ -74,7 +105,7 @@ export class ProjectsController {
   @ApiResponse({ status: 404, description: 'Project not found' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Access denied' })
-  remove(@Param('id') id: string, @Request() req) {
+  remove(@Param('id') id: string, @Request() req: { user: { sub: string } }) {
     return this.projectsService.remove(id, req.user.sub);
   }
-} 
+}

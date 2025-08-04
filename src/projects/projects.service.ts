@@ -20,7 +20,10 @@ export class ProjectsService {
     private userRepository: Repository<User>,
   ) {}
 
-  async create(createProjectDto: CreateProjectDto, userId: string): Promise<Project> {
+  async create(
+    createProjectDto: CreateProjectDto,
+    userId: string,
+  ): Promise<Project> {
     const owner = await this.userRepository.findOne({ where: { id: userId } });
     if (!owner) {
       throw new NotFoundException('User not found');
@@ -78,7 +81,11 @@ export class ProjectsService {
     return project;
   }
 
-  async update(id: string, updateProjectDto: UpdateProjectDto, userId: string): Promise<Project> {
+  async update(
+    id: string,
+    updateProjectDto: UpdateProjectDto,
+    userId: string,
+  ): Promise<Project> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -100,7 +107,9 @@ export class ProjectsService {
 
     // Validate status transition
     if (updateProjectDto.status && project.status !== updateProjectDto.status) {
-      if (!this.isValidStatusTransition(project.status, updateProjectDto.status)) {
+      if (
+        !this.isValidStatusTransition(project.status, updateProjectDto.status)
+      ) {
         throw new BadRequestException('Invalid status transition');
       }
     }
@@ -139,13 +148,20 @@ export class ProjectsService {
       throw new NotFoundException('User not found');
     }
 
-    const whereClause = user.role === UserRole.ADMIN ? {} : { owner: { id: userId } };
+    const whereClause =
+      user.role === UserRole.ADMIN ? {} : { owner: { id: userId } };
 
     const [total, active, completed, cancelled] = await Promise.all([
       this.projectRepository.count({ where: whereClause }),
-      this.projectRepository.count({ where: { ...whereClause, status: ProjectStatus.ACTIVE } }),
-      this.projectRepository.count({ where: { ...whereClause, status: ProjectStatus.COMPLETED } }),
-      this.projectRepository.count({ where: { ...whereClause, status: ProjectStatus.CANCELLED } }),
+      this.projectRepository.count({
+        where: { ...whereClause, status: ProjectStatus.ACTIVE },
+      }),
+      this.projectRepository.count({
+        where: { ...whereClause, status: ProjectStatus.COMPLETED },
+      }),
+      this.projectRepository.count({
+        where: { ...whereClause, status: ProjectStatus.CANCELLED },
+      }),
     ]);
 
     return {
@@ -157,9 +173,16 @@ export class ProjectsService {
     };
   }
 
-  private isValidStatusTransition(currentStatus: ProjectStatus, newStatus: ProjectStatus): boolean {
+  private isValidStatusTransition(
+    currentStatus: ProjectStatus,
+    newStatus: ProjectStatus,
+  ): boolean {
     const validTransitions: Record<ProjectStatus, ProjectStatus[]> = {
-      [ProjectStatus.ACTIVE]: [ProjectStatus.COMPLETED, ProjectStatus.CANCELLED, ProjectStatus.ON_HOLD],
+      [ProjectStatus.ACTIVE]: [
+        ProjectStatus.COMPLETED,
+        ProjectStatus.CANCELLED,
+        ProjectStatus.ON_HOLD,
+      ],
       [ProjectStatus.ON_HOLD]: [ProjectStatus.ACTIVE, ProjectStatus.CANCELLED],
       [ProjectStatus.COMPLETED]: [],
       [ProjectStatus.CANCELLED]: [],
@@ -167,4 +190,4 @@ export class ProjectsService {
 
     return validTransitions[currentStatus]?.includes(newStatus) || false;
   }
-} 
+}

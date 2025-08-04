@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsDate, IsNumber, IsEnum, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsDate,
+  IsNumber,
+  IsEnum,
+  Min,
+  Max,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ProjectStatus } from '../entities/project.entity';
 
@@ -68,4 +76,4 @@ export class UpdateProjectDto {
   @Min(0)
   @Max(100)
   progress?: number;
-} 
+}

@@ -11,4 +11,4 @@ import { User } from '../entities/user.entity';
   providers: [ProjectsService],
   exports: [ProjectsService],
 })
-export class ProjectsModule {} 
+export class ProjectsModule {}

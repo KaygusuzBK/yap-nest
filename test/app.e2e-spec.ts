@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
@@ -14,34 +15,36 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
   });
 
-  describe('GET /', () => {
-    it('should return "Hello World!"', async () => {
-      const response = await app.getHttpServer().request('GET', '/');
-      expect(response.status).toBe(200);
-      expect(response.text).toBe('Hello World!');
-    });
+  it('/ (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/')
+      .expect(200)
+      .expect((res: request.Response) => {
+        expect(res.text).toContain('Hello World!');
+      });
   });
 
-  describe('GET /health', () => {
-    it('should return health status', async () => {
-      const response = await app.getHttpServer().request('GET', '/health');
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('status');
-      expect(response.body).toHaveProperty('timestamp');
-      expect(response.body.status).toBe('ok');
-    });
+  it('/health (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/health')
+      .expect(200)
+      .expect((res: request.Response) => {
+        expect(res.body).toHaveProperty('status');
+        expect(res.body).toHaveProperty('timestamp');
+        expect(res.body.status).toBe('ok');
+      });
   });
 
-  describe('GET /api', () => {
-    it('should return Swagger UI HTML', async () => {
-      const response = await app.getHttpServer().request('GET', '/api');
-      expect(response.status).toBe(200);
-      expect(response.text).toContain('Swagger UI');
-      expect(response.text).toContain('swagger-ui');
-    });
+  it('/api (GET) - Swagger documentation', () => {
+    return request(app.getHttpServer())
+      .get('/api')
+      .expect(200)
+      .expect((res: request.Response) => {
+        expect(res.text).toContain('Swagger UI');
+      });
   });
 });

@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsDate, IsNumber, IsEnum, IsUUID, IsArray, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsDate,
+  IsNumber,
+  IsEnum,
+  IsUUID,
+  IsArray,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { TaskStatus, TaskPriority } from '../entities/task.entity';
 
@@ -89,4 +98,4 @@ export class UpdateTaskDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
-} 
+}

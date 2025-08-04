@@ -37,7 +37,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  
+
   // Basit Swagger UI setup
   SwaggerModule.setup('api', app, document);
 

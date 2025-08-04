@@ -54,4 +54,4 @@ export class File {
   @ManyToOne(() => User, (user) => user.uploadedFiles)
   @JoinColumn({ name: 'uploadedById' })
   uploadedBy: User;
-} 
+}

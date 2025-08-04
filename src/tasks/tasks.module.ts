@@ -12,4 +12,4 @@ import { Project } from '../entities/project.entity';
   providers: [TasksService],
   exports: [TasksService],
 })
-export class TasksModule {} 
+export class TasksModule {}

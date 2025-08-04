@@ -16,4 +16,4 @@ export class CreateCommentDto {
 export class UpdateCommentDto {
   @IsString()
   content: string;
-} 
+}

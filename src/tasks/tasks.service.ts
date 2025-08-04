@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Task, TaskStatus, TaskPriority } from '../entities/task.entity';
+import { Task, TaskStatus } from '../entities/task.entity';
 import { User, UserRole } from '../entities/user.entity';
 import { Project } from '../entities/project.entity';
 import { CreateTaskDto, UpdateTaskDto } from '../dto/task.dto';
@@ -23,12 +23,14 @@ export class TasksService {
   ) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string): Promise<Task> {
-    const assignee = await this.userRepository.findOne({ where: { id: createTaskDto.assigneeId } });
+    const assignee = await this.userRepository.findOne({
+      where: { id: createTaskDto.assigneeId },
+    });
     if (!assignee) {
       throw new NotFoundException('Assignee not found');
     }
 
-    const project = await this.projectRepository.findOne({ 
+    const project = await this.projectRepository.findOne({
       where: { id: createTaskDto.projectId },
       relations: ['owner'],
     });
@@ -36,11 +38,11 @@ export class TasksService {
       throw new NotFoundException('Project not found');
     }
 
-    // Check if user has access to the project
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
     // Temporarily allow all users to create tasks
     // if (user.role !== UserRole.ADMIN && project.owner.id !== userId) {
     //   throw new ForbiddenException('Access denied to this project');
@@ -61,73 +63,58 @@ export class TasksService {
       throw new NotFoundException('User not found');
     }
 
-    let whereClause: any = {};
-    let relations = ['assignee', 'project', 'project.owner'];
+    const queryBuilder = this.taskRepository
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.assignee', 'assignee')
+      .leftJoinAndSelect('task.project', 'project')
+      .leftJoinAndSelect('project.owner', 'owner');
 
     if (projectId) {
-      // Check if user has access to the project
-      const project = await this.projectRepository.findOne({
-        where: { id: projectId },
-        relations: ['owner'],
-      });
-      if (!project) {
-        throw new NotFoundException('Project not found');
-      }
-      if (user.role !== UserRole.ADMIN && project.owner.id !== userId) {
-        throw new ForbiddenException('Access denied to this project');
-      }
-      whereClause.project = { id: projectId };
-    } else {
-      // Filter tasks based on user role
-      if (user.role === UserRole.ADMIN) {
-        // Admin can see all tasks
-      } else {
-        // Others see tasks they're assigned to or tasks in their projects
-        whereClause = [
-          { assignee: { id: userId } },
-          { project: { owner: { id: userId } } },
-        ];
-      }
+      queryBuilder.andWhere('task.projectId = :projectId', { projectId });
     }
 
-    return this.taskRepository.find({
-      where: whereClause,
-      relations,
-      order: { createdAt: 'DESC' },
-    });
+    if (user.role !== UserRole.ADMIN) {
+      queryBuilder.andWhere(
+        '(task.assigneeId = :userId OR project.ownerId = :userId)',
+        { userId },
+      );
+    }
+
+    return queryBuilder.getMany();
   }
 
   async findOne(id: string, userId: string): Promise<Task> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
     const task = await this.taskRepository.findOne({
       where: { id },
-      relations: ['assignee', 'project', 'project.owner', 'parentTask'],
+      relations: ['assignee', 'project', 'project.owner'],
     });
 
     if (!task) {
       throw new NotFoundException('Task not found');
     }
 
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     // Check if user has access to this task
-    if (user.role !== UserRole.ADMIN && 
-        task.assignee?.id !== userId && 
-        task.project.owner.id !== userId) {
+    if (
+      user.role !== UserRole.ADMIN &&
+      task.assignee?.id !== userId &&
+      task.project.owner.id !== userId
+    ) {
       throw new ForbiddenException('Access denied');
     }
 
     return task;
   }
 
-  async update(id: string, updateTaskDto: UpdateTaskDto, userId: string): Promise<Task> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
+  async update(
+    id: string,
+    updateTaskDto: UpdateTaskDto,
+    userId: string,
+  ): Promise<Task> {
     const task = await this.taskRepository.findOne({
       where: { id },
       relations: ['assignee', 'project', 'project.owner'],
@@ -137,46 +124,59 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     // Check if user can update this task
-    if (user.role !== UserRole.ADMIN && 
-        task.assignee?.id !== userId && 
-        task.project.owner.id !== userId) {
+    if (
+      user.role !== UserRole.ADMIN &&
+      task.assignee?.id !== userId &&
+      task.project.owner.id !== userId
+    ) {
       throw new ForbiddenException('Access denied');
     }
 
-    // Validate status transition
-    if (updateTaskDto.status && task.status !== updateTaskDto.status) {
+    // Validate status transition if status is being updated
+    if (updateTaskDto.status && updateTaskDto.status !== task.status) {
       if (!this.isValidStatusTransition(task.status, updateTaskDto.status)) {
-        throw new BadRequestException('Invalid status transition');
+        throw new BadRequestException(
+          `Invalid status transition from ${task.status} to ${updateTaskDto.status}`,
+        );
       }
     }
 
     // Update assignee if provided
     if (updateTaskDto.assigneeId) {
-      const assignee = await this.userRepository.findOne({ where: { id: updateTaskDto.assigneeId } });
+      const assignee = await this.userRepository.findOne({
+        where: { id: updateTaskDto.assigneeId },
+      });
       if (!assignee) {
         throw new NotFoundException('Assignee not found');
       }
       task.assignee = assignee;
     }
 
+    // Update other fields
     Object.assign(task, updateTaskDto);
+
     return this.taskRepository.save(task);
   }
 
   async remove(id: string, userId: string): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
     const task = await this.taskRepository.findOne({
       where: { id },
-      relations: ['assignee', 'project', 'project.owner'],
+      relations: ['project', 'project.owner'],
     });
 
     if (!task) {
       throw new NotFoundException('Task not found');
+    }
+
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
     // Check if user can delete this task
@@ -185,6 +185,7 @@ export class TasksService {
     }
 
     await this.taskRepository.remove(task);
+
     return { message: 'Task deleted successfully' };
   }
 
@@ -194,12 +195,20 @@ export class TasksService {
       throw new NotFoundException('User not found');
     }
 
-    // Simple stats for now
+    // Simple stats for now (Simplified to fix Internal Server Error)
     const total = await this.taskRepository.count();
-    const todo = await this.taskRepository.count({ where: { status: TaskStatus.TODO } });
-    const inProgress = await this.taskRepository.count({ where: { status: TaskStatus.IN_PROGRESS } });
-    const completed = await this.taskRepository.count({ where: { status: TaskStatus.COMPLETED } });
-    const cancelled = await this.taskRepository.count({ where: { status: TaskStatus.CANCELLED } });
+    const todo = await this.taskRepository.count({
+      where: { status: TaskStatus.TODO },
+    });
+    const inProgress = await this.taskRepository.count({
+      where: { status: TaskStatus.IN_PROGRESS },
+    });
+    const completed = await this.taskRepository.count({
+      where: { status: TaskStatus.COMPLETED },
+    });
+    const cancelled = await this.taskRepository.count({
+      where: { status: TaskStatus.CANCELLED },
+    });
 
     return {
       total,
@@ -212,13 +221,14 @@ export class TasksService {
   }
 
   private isValidStatusTransition(currentStatus: TaskStatus, newStatus: TaskStatus): boolean {
-    const validTransitions = {
+    const validTransitions: Record<TaskStatus, TaskStatus[]> = {
       [TaskStatus.TODO]: [TaskStatus.IN_PROGRESS, TaskStatus.CANCELLED],
-      [TaskStatus.IN_PROGRESS]: [TaskStatus.COMPLETED, TaskStatus.CANCELLED, TaskStatus.TODO],
-      [TaskStatus.COMPLETED]: [TaskStatus.IN_PROGRESS],
-      [TaskStatus.CANCELLED]: [TaskStatus.TODO],
+      [TaskStatus.IN_PROGRESS]: [TaskStatus.COMPLETED, TaskStatus.CANCELLED],
+      [TaskStatus.REVIEW]: [TaskStatus.COMPLETED, TaskStatus.IN_PROGRESS],
+      [TaskStatus.COMPLETED]: [],
+      [TaskStatus.CANCELLED]: [],
     };
 
     return validTransitions[currentStatus]?.includes(newStatus) || false;
   }
-} 
+}
