@@ -16,8 +16,6 @@ jest.mock('bcryptjs', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
-  let userRepository: Repository<User>;
-  let jwtService: JwtService;
 
   const mockUserRepository = {
     findOne: jest.fn(),
@@ -166,7 +164,7 @@ describe('AuthService', () => {
       };
 
       mockUserRepository.findOne.mockResolvedValue(mockUser);
-      
+
       // Mock bcrypt.compare to return false for invalid password
       const bcrypt = require('bcryptjs');
       bcrypt.compare.mockResolvedValueOnce(false);
@@ -204,4 +202,4 @@ describe('AuthService', () => {
       expect(result).toBeNull();
     });
   });
-}); 
+});

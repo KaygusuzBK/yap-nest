@@ -12,7 +12,7 @@ async function bootstrap() {
       process.env.CORS_ORIGIN || 'http://localhost:3000',
       'https://your-frontend-app.vercel.app',
       'http://localhost:3000',
-      'https://localhost:3000'
+      'https://localhost:3000',
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -28,14 +28,14 @@ async function bootstrap() {
     }),
   );
 
-    // Swagger dokümantasyonu
+  // Swagger dokümantasyonu
   const config = new DocumentBuilder()
     .setTitle('YAP Nest API')
     .setDescription('Proje yönetim platformu API dokümantasyonu')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, {
     customSiteTitle: 'YAP Nest API Documentation',

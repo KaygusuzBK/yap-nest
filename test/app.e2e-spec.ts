@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
@@ -21,19 +20,16 @@ describe('AppController (e2e)', () => {
 
   describe('GET /', () => {
     it('should return "Hello World!"', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/')
-        .expect(200);
+      const response = await app.getHttpServer().request('GET', '/');
+      expect(response.status).toBe(200);
       expect(response.text).toBe('Hello World!');
     });
   });
 
   describe('GET /health', () => {
     it('should return health status', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/health')
-        .expect(200);
-      
+      const response = await app.getHttpServer().request('GET', '/health');
+      expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status');
       expect(response.body).toHaveProperty('timestamp');
       expect(response.body.status).toBe('ok');
@@ -42,10 +38,8 @@ describe('AppController (e2e)', () => {
 
   describe('GET /api', () => {
     it('should return Swagger UI HTML', async () => {
-      const response = await request(app.getHttpServer())
-        .get('/api')
-        .expect(200);
-      
+      const response = await app.getHttpServer().request('GET', '/api');
+      expect(response.status).toBe(200);
       expect(response.text).toContain('Swagger UI');
       expect(response.text).toContain('swagger-ui');
     });
