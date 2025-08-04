@@ -1,0 +1,1056 @@
+{
+  "apiInfo": {
+    "baseUrl": "https://yap-nest-axplyzlx3-berkans-projects-d2fa45cc.vercel.app",
+    "version": "1.0.0",
+    "description": "YAP Nest Project Management API",
+    "authentication": "Bearer Token (JWT)"
+  },
+  "entities": {
+    "User": {
+      "description": "Kullanıcı bilgileri ve kimlik doğrulama",
+      "fields": {
+        "id": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Benzersiz kullanıcı kimliği",
+          "example": "uuid-1"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Kullanıcının tam adı",
+          "example": "Ahmet Yılmaz",
+          "required": true
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Benzersiz email adresi",
+          "example": "ahmet@example.com",
+          "required": true,
+          "unique": true
+        },
+        "password": {
+          "type": "string",
+          "minLength": 6,
+          "description": "Hash'lenmiş şifre (bcrypt)",
+          "example": "hashed_password",
+          "required": true,
+          "hidden": true
+        },
+        "avatar": {
+          "type": "string",
+          "format": "url",
+          "description": "Kullanıcı avatar resmi URL'i",
+          "example": "https://example.com/avatar1.jpg",
+          "required": false
+        },
+        "role": {
+          "type": "enum",
+          "values": ["admin", "manager", "member"],
+          "default": "member",
+          "description": "Kullanıcı rolü ve yetkileri",
+          "example": "admin"
+        },
+        "isActive": {
+          "type": "boolean",
+          "default": true,
+          "description": "Hesabın aktif olup olmadığı",
+          "example": true
+        },
+        "createdAt": {
+          "type": "date",
+          "description": "Hesap oluşturulma tarihi",
+          "example": "2024-01-15T10:00:00Z"
+        },
+        "updatedAt": {
+          "type": "date",
+          "description": "Son güncelleme tarihi",
+          "example": "2024-03-20T14:30:00Z"
+        }
+      },
+      "relations": {
+        "ownedProjects": "OneToMany -> Project",
+        "assignedTasks": "OneToMany -> Task",
+        "comments": "OneToMany -> Comment",
+        "uploadedFiles": "OneToMany -> File",
+        "notifications": "OneToMany -> Notification"
+      }
+    },
+    "Project": {
+      "description": "Proje bilgileri ve yönetimi",
+      "fields": {
+        "id": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Benzersiz proje kimliği",
+          "example": "uuid-1"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Proje başlığı",
+          "example": "E-ticaret Platformu",
+          "required": true
+        },
+        "description": {
+          "type": "text",
+          "description": "Proje detaylı açıklaması",
+          "example": "Modern e-ticaret platformu geliştirme projesi",
+          "required": false
+        },
+        "status": {
+          "type": "enum",
+          "values": ["active", "completed", "on_hold", "cancelled"],
+          "default": "active",
+          "description": "Proje durumu",
+          "example": "active"
+        },
+        "startDate": {
+          "type": "date",
+          "description": "Proje başlangıç tarihi",
+          "example": "2024-01-15",
+          "required": true
+        },
+        "endDate": {
+          "type": "date",
+          "description": "Proje bitiş tarihi",
+          "example": "2024-06-30",
+          "required": false
+        },
+        "budget": {
+          "type": "decimal",
+          "precision": 10,
+          "scale": 2,
+          "description": "Proje bütçesi",
+          "example": 50000.00,
+          "required": false
+        },
+        "progress": {
+          "type": "integer",
+          "min": 0,
+          "max": 100,
+          "default": 0,
+          "description": "Proje ilerleme yüzdesi",
+          "example": 65
+        },
+        "ownerId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Proje sahibi kullanıcı ID'si",
+          "example": "uuid-1",
+          "required": true
+        },
+        "createdAt": {
+          "type": "date",
+          "description": "Proje oluşturulma tarihi",
+          "example": "2024-01-15T10:00:00Z"
+        },
+        "updatedAt": {
+          "type": "date",
+          "description": "Son güncelleme tarihi",
+          "example": "2024-03-20T14:30:00Z"
+        }
+      },
+      "relations": {
+        "owner": "ManyToOne -> User",
+        "tasks": "OneToMany -> Task",
+        "comments": "OneToMany -> Comment",
+        "files": "OneToMany -> File"
+      }
+    },
+    "Task": {
+      "description": "Görev bilgileri ve takibi",
+      "fields": {
+        "id": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Benzersiz görev kimliği",
+          "example": "uuid-1"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Görev başlığı",
+          "example": "Veritabanı Tasarımı",
+          "required": true
+        },
+        "description": {
+          "type": "text",
+          "description": "Görev detaylı açıklaması",
+          "example": "E-ticaret platformu için veritabanı şeması oluşturma",
+          "required": false
+        },
+        "status": {
+          "type": "enum",
+          "values": ["todo", "in_progress", "review", "completed", "cancelled"],
+          "default": "todo",
+          "description": "Görev durumu",
+          "example": "completed"
+        },
+        "priority": {
+          "type": "enum",
+          "values": ["low", "medium", "high", "urgent"],
+          "default": "medium",
+          "description": "Görev önceliği",
+          "example": "high"
+        },
+        "assigneeId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Görevi atanan kullanıcı ID'si",
+          "example": "uuid-3",
+          "required": false
+        },
+        "projectId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Görevin ait olduğu proje ID'si",
+          "example": "uuid-1",
+          "required": true
+        },
+        "dueDate": {
+          "type": "datetime",
+          "description": "Görev son tarihi",
+          "example": "2024-02-15T17:00:00Z",
+          "required": false
+        },
+        "estimatedHours": {
+          "type": "integer",
+          "min": 0,
+          "description": "Tahmini çalışma saati",
+          "example": 16,
+          "required": false
+        },
+        "actualHours": {
+          "type": "integer",
+          "min": 0,
+          "default": 0,
+          "description": "Gerçekleşen çalışma saati",
+          "example": 18
+        },
+        "parentTaskId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Üst görev ID'si (alt görevler için)",
+          "example": null,
+          "required": false
+        },
+        "tags": {
+          "type": "array",
+          "items": "string",
+          "description": "Görev etiketleri",
+          "example": ["database", "design"],
+          "required": false
+        },
+        "createdAt": {
+          "type": "date",
+          "description": "Görev oluşturulma tarihi",
+          "example": "2024-01-20T10:00:00Z"
+        },
+        "updatedAt": {
+          "type": "date",
+          "description": "Son güncelleme tarihi",
+          "example": "2024-02-15T17:30:00Z"
+        }
+      },
+      "relations": {
+        "assignee": "ManyToOne -> User",
+        "project": "ManyToOne -> Project",
+        "parentTask": "ManyToOne -> Task",
+        "subtasks": "OneToMany -> Task",
+        "comments": "OneToMany -> Comment",
+        "files": "OneToMany -> File"
+      }
+    },
+    "Comment": {
+      "description": "Görev ve proje yorumları",
+      "fields": {
+        "id": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Benzersiz yorum kimliği",
+          "example": "uuid-1"
+        },
+        "content": {
+          "type": "text",
+          "description": "Yorum içeriği",
+          "example": "Veritabanı tasarımı tamamlandı, review için hazır.",
+          "required": true
+        },
+        "authorId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Yorum yazarı kullanıcı ID'si",
+          "example": "uuid-3",
+          "required": true
+        },
+        "taskId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "İlgili görev ID'si (görev yorumu ise)",
+          "example": "uuid-1",
+          "required": false
+        },
+        "projectId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "İlgili proje ID'si (proje yorumu ise)",
+          "example": null,
+          "required": false
+        },
+        "createdAt": {
+          "type": "date",
+          "description": "Yorum oluşturulma tarihi",
+          "example": "2024-02-15T17:30:00Z"
+        },
+        "updatedAt": {
+          "type": "date",
+          "description": "Son güncelleme tarihi",
+          "example": "2024-02-15T17:30:00Z"
+        }
+      },
+      "relations": {
+        "author": "ManyToOne -> User",
+        "task": "ManyToOne -> Task",
+        "project": "ManyToOne -> Project"
+      }
+    },
+    "File": {
+      "description": "Dosya yükleme ve yönetimi",
+      "fields": {
+        "id": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Benzersiz dosya kimliği",
+          "example": "uuid-1"
+        },
+        "filename": {
+          "type": "string",
+          "description": "Sistemdeki dosya adı",
+          "example": "database_schema.sql",
+          "required": true
+        },
+        "originalName": {
+          "type": "string",
+          "description": "Orijinal dosya adı",
+          "example": "database_schema.sql",
+          "required": true
+        },
+        "mimeType": {
+          "type": "string",
+          "description": "Dosya MIME tipi",
+          "example": "application/sql",
+          "required": true
+        },
+        "size": {
+          "type": "integer",
+          "min": 0,
+          "description": "Dosya boyutu (bytes)",
+          "example": 2048,
+          "required": true
+        },
+        "url": {
+          "type": "string",
+          "format": "url",
+          "description": "Dosya erişim URL'i",
+          "example": "https://example.com/files/database_schema.sql",
+          "required": true
+        },
+        "taskId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "İlgili görev ID'si",
+          "example": "uuid-1",
+          "required": false
+        },
+        "projectId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "İlgili proje ID'si",
+          "example": null,
+          "required": false
+        },
+        "uploadedById": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Dosyayı yükleyen kullanıcı ID'si",
+          "example": "uuid-3",
+          "required": true
+        },
+        "createdAt": {
+          "type": "date",
+          "description": "Dosya yükleme tarihi",
+          "example": "2024-02-15T17:30:00Z"
+        }
+      },
+      "relations": {
+        "task": "ManyToOne -> Task",
+        "project": "ManyToOne -> Project",
+        "uploadedBy": "ManyToOne -> User"
+      }
+    },
+    "Notification": {
+      "description": "Kullanıcı bildirimleri",
+      "fields": {
+        "id": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Benzersiz bildirim kimliği",
+          "example": "uuid-1"
+        },
+        "type": {
+          "type": "enum",
+          "values": ["task_assigned", "comment_added", "task_completed", "project_updated", "deadline_approaching", "file_uploaded"],
+          "description": "Bildirim tipi",
+          "example": "task_assigned",
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Bildirim başlığı",
+          "example": "Yeni Görev Atandı",
+          "required": true
+        },
+        "message": {
+          "type": "text",
+          "description": "Bildirim mesajı",
+          "example": "Frontend Geliştirme görevi size atandı.",
+          "required": true
+        },
+        "userId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "Bildirim alıcısı kullanıcı ID'si",
+          "example": "uuid-2",
+          "required": true
+        },
+        "isRead": {
+          "type": "boolean",
+          "default": false,
+          "description": "Bildirimin okunup okunmadığı",
+          "example": false
+        },
+        "relatedTaskId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "İlgili görev ID'si",
+          "example": "uuid-2",
+          "required": false
+        },
+        "relatedProjectId": {
+          "type": "string",
+          "format": "UUID",
+          "description": "İlgili proje ID'si",
+          "example": null,
+          "required": false
+        },
+        "createdAt": {
+          "type": "date",
+          "description": "Bildirim oluşturulma tarihi",
+          "example": "2024-02-01T11:00:00Z"
+        }
+      },
+      "relations": {
+        "user": "ManyToOne -> User"
+      }
+    }
+  },
+  "endpoints": {
+    "authentication": {
+      "basePath": "/auth",
+      "endpoints": {
+        "register": {
+          "method": "POST",
+          "path": "/auth/register",
+          "description": "Yeni kullanıcı kaydı",
+          "body": {
+            "name": "string (required)",
+            "email": "string (required, unique)",
+            "password": "string (required, min 6 chars)",
+            "avatar": "string (optional)",
+            "role": "enum (optional, default: member)"
+          },
+          "response": {
+            "user": "User object (without password)",
+            "token": "string (JWT)",
+            "tokenType": "string (Bearer)",
+            "expiresIn": "number (seconds)"
+          },
+          "statusCodes": {
+            "201": "User registered successfully",
+            "409": "User already exists",
+            "400": "Validation error"
+          }
+        },
+        "login": {
+          "method": "POST",
+          "path": "/auth/login",
+          "description": "Kullanıcı girişi",
+          "body": {
+            "email": "string (required)",
+            "password": "string (required)",
+            "rememberMe": "boolean (optional, default: false)"
+          },
+          "response": {
+            "user": "User object (without password)",
+            "token": "string (JWT)",
+            "tokenType": "string (Bearer)",
+            "expiresIn": "number (seconds, 3600 or 604800)"
+          },
+          "statusCodes": {
+            "200": "Login successful",
+            "401": "Invalid credentials",
+            "400": "Validation error"
+          }
+        },
+        "refresh": {
+          "method": "POST",
+          "path": "/auth/refresh",
+          "description": "Access token yenileme",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "response": {
+            "user": "User object (without password)",
+            "token": "string (JWT)",
+            "tokenType": "string (Bearer)",
+            "expiresIn": "number (seconds)"
+          },
+          "statusCodes": {
+            "200": "Token refreshed successfully",
+            "401": "Unauthorized"
+          }
+        },
+        "profile": {
+          "method": "GET",
+          "path": "/auth/profile",
+          "description": "Kullanıcı profili",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "response": "User object (without password)",
+          "statusCodes": {
+            "200": "Profile retrieved successfully",
+            "401": "Unauthorized"
+          }
+        },
+        "changePassword": {
+          "method": "PUT",
+          "path": "/auth/change-password",
+          "description": "Şifre değiştirme",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "body": {
+            "currentPassword": "string (required)",
+            "newPassword": "string (required, min 6 chars)"
+          },
+          "response": {
+            "message": "string"
+          },
+          "statusCodes": {
+            "200": "Password changed successfully",
+            "401": "Current password incorrect",
+            "400": "Validation error"
+          }
+        },
+        "forgotPassword": {
+          "method": "POST",
+          "path": "/auth/forgot-password",
+          "description": "Şifre sıfırlama isteği",
+          "body": {
+            "email": "string (required)"
+          },
+          "response": {
+            "message": "string"
+          },
+          "statusCodes": {
+            "200": "Reset email sent (if user exists)"
+          }
+        },
+        "resetPassword": {
+          "method": "POST",
+          "path": "/auth/reset-password",
+          "description": "Token ile şifre sıfırlama",
+          "body": {
+            "token": "string (required)",
+            "newPassword": "string (required, min 6 chars)"
+          },
+          "response": {
+            "message": "string"
+          },
+          "statusCodes": {
+            "200": "Password reset successfully",
+            "400": "Invalid or expired token"
+          }
+        },
+        "logout": {
+          "method": "POST",
+          "path": "/auth/logout",
+          "description": "Çıkış (client-side token removal)",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "response": {
+            "message": "string"
+          },
+          "statusCodes": {
+            "200": "Logout successful"
+          }
+        }
+      }
+    },
+    "projects": {
+      "basePath": "/projects",
+      "description": "Proje yönetimi endpoint'leri (Gelecek)",
+      "endpoints": {
+        "getAll": {
+          "method": "GET",
+          "path": "/projects",
+          "description": "Tüm projeleri listele",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "queryParams": {
+            "status": "string (optional)",
+            "ownerId": "string (optional)",
+            "page": "number (optional, default: 1)",
+            "limit": "number (optional, default: 10)"
+          }
+        },
+        "getById": {
+          "method": "GET",
+          "path": "/projects/:id",
+          "description": "ID ile proje getir",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          }
+        },
+        "create": {
+          "method": "POST",
+          "path": "/projects",
+          "description": "Yeni proje oluştur",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "body": {
+            "title": "string (required)",
+            "description": "string (optional)",
+            "status": "enum (optional)",
+            "startDate": "date (required)",
+            "endDate": "date (optional)",
+            "budget": "number (optional)",
+            "progress": "number (optional)"
+          }
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/projects/:id",
+          "description": "Proje güncelle",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "body": "Same as create (all fields optional)"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/projects/:id",
+          "description": "Proje sil",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          }
+        }
+      }
+    },
+    "tasks": {
+      "basePath": "/tasks",
+      "description": "Görev yönetimi endpoint'leri (Gelecek)",
+      "endpoints": {
+        "getAll": {
+          "method": "GET",
+          "path": "/tasks",
+          "description": "Tüm görevleri listele",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "queryParams": {
+            "projectId": "string (optional)",
+            "assigneeId": "string (optional)",
+            "status": "string (optional)",
+            "priority": "string (optional)",
+            "page": "number (optional, default: 1)",
+            "limit": "number (optional, default: 10)"
+          }
+        },
+        "getById": {
+          "method": "GET",
+          "path": "/tasks/:id",
+          "description": "ID ile görev getir",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          }
+        },
+        "create": {
+          "method": "POST",
+          "path": "/tasks",
+          "description": "Yeni görev oluştur",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "body": {
+            "title": "string (required)",
+            "description": "string (optional)",
+            "status": "enum (optional)",
+            "priority": "enum (optional)",
+            "assigneeId": "string (optional)",
+            "projectId": "string (required)",
+            "dueDate": "datetime (optional)",
+            "estimatedHours": "number (optional)",
+            "parentTaskId": "string (optional)",
+            "tags": "array (optional)"
+          }
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/tasks/:id",
+          "description": "Görev güncelle",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "body": "Same as create (all fields optional)"
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/tasks/:id",
+          "description": "Görev sil",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          }
+        }
+      }
+    },
+    "comments": {
+      "basePath": "/comments",
+      "description": "Yorum yönetimi endpoint'leri (Gelecek)",
+      "endpoints": {
+        "getAll": {
+          "method": "GET",
+          "path": "/comments",
+          "description": "Yorumları listele",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "queryParams": {
+            "taskId": "string (optional)",
+            "projectId": "string (optional)",
+            "authorId": "string (optional)",
+            "page": "number (optional, default: 1)",
+            "limit": "number (optional, default: 10)"
+          }
+        },
+        "create": {
+          "method": "POST",
+          "path": "/comments",
+          "description": "Yeni yorum oluştur",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "body": {
+            "content": "string (required)",
+            "taskId": "string (optional)",
+            "projectId": "string (optional)"
+          }
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/comments/:id",
+          "description": "Yorum güncelle",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          },
+          "body": {
+            "content": "string (required)"
+          }
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/comments/:id",
+          "description": "Yorum sil",
+          "headers": {
+            "Authorization": "Bearer <token> (required)"
+          }
+        }
+      }
+    }
+  },
+  "exampleData": {
+    "users": [
+      {
+        "id": "uuid-1",
+        "name": "Ahmet Yılmaz",
+        "email": "ahmet@example.com",
+        "password": "hashed_password",
+        "avatar": "https://example.com/avatar1.jpg",
+        "role": "admin",
+        "isActive": true,
+        "createdAt": "2024-01-15T10:00:00Z",
+        "updatedAt": "2024-03-20T14:30:00Z"
+      },
+      {
+        "id": "uuid-2",
+        "name": "Ayşe Demir",
+        "email": "ayse@example.com",
+        "password": "hashed_password",
+        "avatar": "https://example.com/avatar2.jpg",
+        "role": "manager",
+        "isActive": true,
+        "createdAt": "2024-01-20T09:00:00Z",
+        "updatedAt": "2024-03-19T16:45:00Z"
+      },
+      {
+        "id": "uuid-3",
+        "name": "Mehmet Kaya",
+        "email": "mehmet@example.com",
+        "password": "hashed_password",
+        "avatar": "https://example.com/avatar3.jpg",
+        "role": "member",
+        "isActive": true,
+        "createdAt": "2024-02-01T11:30:00Z",
+        "updatedAt": "2024-03-18T13:20:00Z"
+      }
+    ],
+    "projects": [
+      {
+        "id": "uuid-1",
+        "title": "E-ticaret Platformu",
+        "description": "Modern e-ticaret platformu geliştirme projesi",
+        "status": "active",
+        "startDate": "2024-01-15",
+        "endDate": "2024-06-30",
+        "budget": 50000.00,
+        "progress": 65,
+        "ownerId": "uuid-1",
+        "createdAt": "2024-01-15T10:00:00Z",
+        "updatedAt": "2024-03-20T14:30:00Z"
+      },
+      {
+        "id": "uuid-2",
+        "title": "Mobil Uygulama",
+        "description": "iOS ve Android mobil uygulama geliştirme",
+        "status": "active",
+        "startDate": "2024-02-01",
+        "endDate": "2024-08-15",
+        "budget": 75000.00,
+        "progress": 35,
+        "ownerId": "uuid-2",
+        "createdAt": "2024-02-01T09:00:00Z",
+        "updatedAt": "2024-03-19T16:45:00Z"
+      },
+      {
+        "id": "uuid-3",
+        "title": "Web Sitesi Yenileme",
+        "description": "Kurumsal web sitesi yenileme projesi",
+        "status": "completed",
+        "startDate": "2024-01-01",
+        "endDate": "2024-03-01",
+        "budget": 25000.00,
+        "progress": 100,
+        "ownerId": "uuid-1",
+        "createdAt": "2024-01-01T08:00:00Z",
+        "updatedAt": "2024-03-01T17:00:00Z"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "uuid-1",
+        "title": "Veritabanı Tasarımı",
+        "description": "E-ticaret platformu için veritabanı şeması oluşturma",
+        "status": "completed",
+        "priority": "high",
+        "assigneeId": "uuid-3",
+        "projectId": "uuid-1",
+        "dueDate": "2024-02-15T17:00:00Z",
+        "estimatedHours": 16,
+        "actualHours": 18,
+        "parentTaskId": null,
+        "tags": ["database", "design"],
+        "createdAt": "2024-01-20T10:00:00Z",
+        "updatedAt": "2024-02-15T17:30:00Z"
+      },
+      {
+        "id": "uuid-2",
+        "title": "Frontend Geliştirme",
+        "description": "React ile kullanıcı arayüzü geliştirme",
+        "status": "in_progress",
+        "priority": "high",
+        "assigneeId": "uuid-2",
+        "projectId": "uuid-1",
+        "dueDate": "2024-04-15T17:00:00Z",
+        "estimatedHours": 40,
+        "actualHours": 25,
+        "parentTaskId": null,
+        "tags": ["frontend", "react"],
+        "createdAt": "2024-02-01T11:00:00Z",
+        "updatedAt": "2024-03-20T14:30:00Z"
+      },
+      {
+        "id": "uuid-3",
+        "title": "Backend API Geliştirme",
+        "description": "Node.js ile REST API geliştirme",
+        "status": "in_progress",
+        "priority": "high",
+        "assigneeId": "uuid-1",
+        "projectId": "uuid-1",
+        "dueDate": "2024-04-01T17:00:00Z",
+        "estimatedHours": 35,
+        "actualHours": 20,
+        "parentTaskId": null,
+        "tags": ["backend", "api"],
+        "createdAt": "2024-02-01T11:00:00Z",
+        "updatedAt": "2024-03-19T16:45:00Z"
+      },
+      {
+        "id": "uuid-4",
+        "title": "UI/UX Tasarımı",
+        "description": "Mobil uygulama için kullanıcı arayüzü tasarımı",
+        "status": "todo",
+        "priority": "medium",
+        "assigneeId": "uuid-2",
+        "projectId": "uuid-2",
+        "dueDate": "2024-03-30T17:00:00Z",
+        "estimatedHours": 24,
+        "actualHours": 0,
+        "parentTaskId": null,
+        "tags": ["design", "ui"],
+        "createdAt": "2024-02-15T09:00:00Z",
+        "updatedAt": "2024-02-15T09:00:00Z"
+      }
+    ],
+    "comments": [
+      {
+        "id": "uuid-1",
+        "content": "Veritabanı tasarımı tamamlandı, review için hazır.",
+        "authorId": "uuid-3",
+        "taskId": "uuid-1",
+        "projectId": null,
+        "createdAt": "2024-02-15T17:30:00Z",
+        "updatedAt": "2024-02-15T17:30:00Z"
+      },
+      {
+        "id": "uuid-2",
+        "content": "Frontend geliştirme devam ediyor, %60 tamamlandı.",
+        "authorId": "uuid-2",
+        "taskId": "uuid-2",
+        "projectId": null,
+        "createdAt": "2024-03-20T14:30:00Z",
+        "updatedAt": "2024-03-20T14:30:00Z"
+      },
+      {
+        "id": "uuid-3",
+        "content": "Proje genel durumu hakkında güncelleme yapıldı.",
+        "authorId": "uuid-1",
+        "taskId": null,
+        "projectId": "uuid-1",
+        "createdAt": "2024-03-19T16:45:00Z",
+        "updatedAt": "2024-03-19T16:45:00Z"
+      }
+    ],
+    "files": [
+      {
+        "id": "uuid-1",
+        "filename": "database_schema.sql",
+        "originalName": "database_schema.sql",
+        "mimeType": "application/sql",
+        "size": 2048,
+        "url": "https://example.com/files/database_schema.sql",
+        "taskId": "uuid-1",
+        "projectId": null,
+        "uploadedBy": "uuid-3",
+        "createdAt": "2024-02-15T17:30:00Z"
+      },
+      {
+        "id": "uuid-2",
+        "filename": "ui_design.fig",
+        "originalName": "ui_design.fig",
+        "mimeType": "application/fig",
+        "size": 5120,
+        "url": "https://example.com/files/ui_design.fig",
+        "taskId": "uuid-4",
+        "projectId": null,
+        "uploadedBy": "uuid-2",
+        "createdAt": "2024-02-20T10:15:00Z"
+      }
+    ],
+    "notifications": [
+      {
+        "id": "uuid-1",
+        "type": "task_assigned",
+        "title": "Yeni Görev Atandı",
+        "message": "Frontend Geliştirme görevi size atandı.",
+        "userId": "uuid-2",
+        "isRead": false,
+        "relatedTaskId": "uuid-2",
+        "relatedProjectId": null,
+        "createdAt": "2024-02-01T11:00:00Z"
+      },
+      {
+        "id": "uuid-2",
+        "type": "comment_added",
+        "title": "Yeni Yorum",
+        "message": "Veritabanı Tasarımı görevine yorum eklendi.",
+        "userId": "uuid-1",
+        "isRead": true,
+        "relatedTaskId": "uuid-1",
+        "relatedProjectId": null,
+        "createdAt": "2024-02-15T17:30:00Z"
+      }
+    ]
+  },
+  "frontendUsage": {
+    "authentication": {
+      "login": {
+        "description": "Kullanıcı girişi örneği",
+        "code": `
+const login = async (email: string, password: string, rememberMe = false) => {
+  const response = await fetch('https://yap-nest-axplyzlx3-berkans-projects-d2fa45cc.vercel.app/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password, rememberMe }),
+  });
+  
+  if (!response.ok) {
+    throw new Error('Login failed');
+  }
+  
+  const data = await response.json();
+  localStorage.setItem('token', data.token);
+  return data;
+};
+        `
+      },
+      "protectedRequest": {
+        "description": "Korumalı endpoint örneği",
+        "code": `
+const getProfile = async () => {
+  const token = localStorage.getItem('token');
+  const response = await fetch('https://yap-nest-axplyzlx3-berkans-projects-d2fa45cc.vercel.app/auth/profile', {
+    headers: {
+      'Authorization': \`Bearer \${token}\`,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to get profile');
+  }
+  
+  return await response.json();
+};
+        `
+      }
+    }
+  }
+} 
