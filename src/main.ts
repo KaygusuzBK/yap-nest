@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,42 +8,32 @@ async function bootstrap() {
   // CORS ayarları
   app.enableCors({
     origin: [
-      process.env.CORS_ORIGIN || 'http://localhost:3000',
-      'https://your-frontend-app.vercel.app',
       'http://localhost:3000',
-      'https://localhost:3000',
+      'http://localhost:3001',
+      'https://yap-nest.vercel.app',
+      'https://*.vercel.app',
     ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
-
-  // Global validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
 
   // Swagger dokümantasyonu
   const config = new DocumentBuilder()
     .setTitle('YAP Nest API')
-    .setDescription('Proje yönetim platformu API dokümantasyonu')
+    .setDescription('Proje yönetim platformu API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-
   const document = SwaggerModule.createDocument(app, config);
-
-  // Basit Swagger UI setup
   SwaggerModule.setup('api', app, document);
 
+  // Port ayarı - Vercel için
   const port = process.env.PORT || 3001;
-  await app.listen(port);
-
+  await app.listen(port, '0.0.0.0');
+  
   console.log(`🚀 Application is running on: http://localhost:${port}`);
   console.log(`📚 Swagger documentation: http://localhost:${port}/api`);
 }
+
 void bootstrap();
