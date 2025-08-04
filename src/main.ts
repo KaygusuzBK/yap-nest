@@ -21,16 +21,22 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger dokümantasyonu
+    // Swagger dokümantasyonu
   const config = new DocumentBuilder()
     .setTitle('YAP Nest API')
     .setDescription('Proje yönetim platformu API dokümantasyonu')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-
+  
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    customSiteTitle: 'YAP Nest API Documentation',
+    customCss: '.swagger-ui .topbar { display: none }',
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
 
   const port = process.env.PORT || 3001;
   await app.listen(port);
