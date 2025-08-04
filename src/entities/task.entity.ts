@@ -5,13 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Project } from './project.entity';
-import { Comment } from './comment.entity';
-import { File } from './file.entity';
 
 export enum TaskStatus {
   TODO = 'todo',
@@ -33,46 +31,46 @@ export class Task {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 200 })
+  @Column({ type: 'varchar', length: 200 })
   title: string;
 
   @Column({ type: 'text', nullable: true })
-  description?: string;
+  description: string;
 
-  @Column({
-    type: 'enum',
-    enum: TaskStatus,
+  @Column({ 
+    type: 'varchar', 
     default: TaskStatus.TODO,
+    enum: Object.values(TaskStatus)
   })
   status: TaskStatus;
 
-  @Column({
-    type: 'enum',
-    enum: TaskPriority,
+  @Column({ 
+    type: 'varchar', 
     default: TaskPriority.MEDIUM,
+    enum: Object.values(TaskPriority)
   })
   priority: TaskPriority;
 
-  @Column({ nullable: true })
-  assigneeId?: string;
+  @Column({ type: 'uuid' })
+  assigneeId: string;
 
-  @Column()
+  @Column({ type: 'uuid' })
   projectId: string;
 
   @Column({ type: 'timestamp', nullable: true })
-  dueDate?: Date;
+  dueDate: Date;
 
-  @Column({ type: 'int', nullable: true })
-  estimatedHours?: number;
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  estimatedHours: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   actualHours: number;
 
-  @Column({ nullable: true })
-  parentTaskId?: string;
+  @Column({ type: 'uuid', nullable: true })
+  parentTaskId: string;
 
   @Column({ type: 'simple-array', nullable: true })
-  tags?: string[];
+  tags: string[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -81,24 +79,18 @@ export class Task {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => User, (user) => user.assignedTasks)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'assigneeId' })
-  assignee?: User;
+  assignee: User;
 
-  @ManyToOne(() => Project, (project) => project.tasks)
+  @ManyToOne(() => Project, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'projectId' })
   project: Project;
 
-  @ManyToOne(() => Task, (task) => task.subtasks, { nullable: true })
+  @ManyToOne(() => Task, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'parentTaskId' })
-  parentTask?: Task;
+  parentTask: Task;
 
   @OneToMany(() => Task, (task) => task.parentTask)
   subtasks: Task[];
-
-  @OneToMany(() => Comment, (comment) => comment.task)
-  comments: Comment[];
-
-  @OneToMany(() => File, (file) => file.task)
-  files: File[];
 }

@@ -5,13 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Task } from './task.entity';
-import { Comment } from './comment.entity';
-import { File } from './file.entity';
 
 export enum ProjectStatus {
   ACTIVE = 'active',
@@ -25,32 +23,32 @@ export class Project {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 200 })
+  @Column({ type: 'varchar', length: 200 })
   title: string;
 
   @Column({ type: 'text', nullable: true })
-  description?: string;
+  description: string;
 
-  @Column({
-    type: 'enum',
-    enum: ProjectStatus,
+  @Column({ 
+    type: 'varchar', 
     default: ProjectStatus.ACTIVE,
+    enum: Object.values(ProjectStatus)
   })
   status: ProjectStatus;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp' })
   startDate: Date;
 
-  @Column({ type: 'date', nullable: true })
-  endDate?: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  endDate: Date;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  budget?: number;
+  budget: number;
 
   @Column({ type: 'int', default: 0 })
   progress: number;
 
-  @Column()
+  @Column({ type: 'uuid' })
   ownerId: string;
 
   @CreateDateColumn()
@@ -60,16 +58,10 @@ export class Project {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => User, (user) => user.ownedProjects)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'ownerId' })
   owner: User;
 
   @OneToMany(() => Task, (task) => task.project)
   tasks: Task[];
-
-  @OneToMany(() => Comment, (comment) => comment.project)
-  comments: Comment[];
-
-  @OneToMany(() => File, (file) => file.project)
-  files: File[];
 }

@@ -5,13 +5,9 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-  Index,
 } from 'typeorm';
 import { Project } from './project.entity';
 import { Task } from './task.entity';
-import { Comment } from './comment.entity';
-import { File } from './file.entity';
-import { Notification } from './notification.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -24,27 +20,26 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 100 })
+  @Column({ type: 'varchar', length: 100 })
   name: string;
 
-  @Column({ unique: true })
-  @Index()
+  @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   password: string;
 
-  @Column({ nullable: true })
-  avatar?: string;
+  @Column({ type: 'varchar', nullable: true })
+  avatar: string;
 
-  @Column({
-    type: 'enum',
-    enum: UserRole,
+  @Column({ 
+    type: 'varchar', 
     default: UserRole.MEMBER,
+    enum: Object.values(UserRole)
   })
   role: UserRole;
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
   @CreateDateColumn()
@@ -59,13 +54,4 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.assignee)
   assignedTasks: Task[];
-
-  @OneToMany(() => Comment, (comment) => comment.author)
-  comments: Comment[];
-
-  @OneToMany(() => File, (file) => file.uploadedBy)
-  uploadedFiles: File[];
-
-  @OneToMany(() => Notification, (notification) => notification.user)
-  notifications: Notification[];
 }
