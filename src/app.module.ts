@@ -24,13 +24,14 @@ import { Notification } from './entities/notification.entity';
         const isProduction = configService.get('NODE_ENV') === 'production';
         
         if (isProduction) {
-          // Production'da SQLite kullan
+          // Production'da in-memory database kullan
           return {
             type: 'sqlite',
-            database: '/tmp/database.sqlite',
+            database: ':memory:',
             entities: [User, Project, Task, Comment, File, Notification],
             synchronize: true,
             logging: false,
+            dropSchema: true, // Her deployment'ta temiz başla
           };
         } else {
           // Development'da PostgreSQL kullan
