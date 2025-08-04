@@ -13,7 +13,7 @@ import { AuthResponseDto, UserResponseDto } from '../dto/auth-response.dto';
 import { UserRole } from '../entities/user.entity';
 
 // Mock user data for development
-const mockUsers = [
+const mockUsers: any[] = [
   {
     id: 'uuid-1',
     name: 'Ahmet Yılmaz',
@@ -60,7 +60,7 @@ export class AuthService {
       email,
       password: hashedPassword,
       name,
-      avatar,
+      avatar: avatar || null,
       role: role || UserRole.MEMBER,
       isActive: true,
       createdAt: new Date(),
