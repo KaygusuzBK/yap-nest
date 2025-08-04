@@ -18,7 +18,7 @@ let users = [
     id: '1',
     name: 'Test User',
     email: 'test@example.com',
-    password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password123
+    password: '$2b$10$NB.Xcw1p3Q3or6RcQW3AOeTl8Cj1H8CK93u7vv5Yc5D2DMzWKBHUi', // password123
     role: 'admin',
     isActive: true,
     createdAt: new Date(),
