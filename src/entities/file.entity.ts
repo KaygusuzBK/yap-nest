@@ -3,7 +3,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -11,16 +10,25 @@ import { User } from './user.entity';
 import { Project } from './project.entity';
 import { Task } from './task.entity';
 
-@Entity('comments')
-export class Comment {
+@Entity('files')
+export class File {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'text' })
-  content: string;
+  @Column()
+  filename: string;
 
   @Column()
-  authorId: string;
+  originalName: string;
+
+  @Column()
+  mimeType: string;
+
+  @Column({ type: 'int' })
+  size: number;
+
+  @Column()
+  url: string;
 
   @Column({ nullable: true })
   taskId?: string;
@@ -28,22 +36,22 @@ export class Comment {
   @Column({ nullable: true })
   projectId?: string;
 
+  @Column()
+  uploadedById: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
-
   // Relations
-  @ManyToOne(() => User, (user) => user.comments)
-  @JoinColumn({ name: 'authorId' })
-  author: User;
-
-  @ManyToOne(() => Task, (task) => task.comments, { nullable: true })
+  @ManyToOne(() => Task, (task) => task.files, { nullable: true })
   @JoinColumn({ name: 'taskId' })
   task?: Task;
 
-  @ManyToOne(() => Project, (project) => project.comments, { nullable: true })
+  @ManyToOne(() => Project, (project) => project.files, { nullable: true })
   @JoinColumn({ name: 'projectId' })
   project?: Project;
-}
+
+  @ManyToOne(() => User, (user) => user.uploadedFiles)
+  @JoinColumn({ name: 'uploadedById' })
+  uploadedBy: User;
+} 

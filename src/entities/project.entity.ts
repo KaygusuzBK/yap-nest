@@ -10,43 +10,66 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Task } from './task.entity';
+import { Comment } from './comment.entity';
+import { File } from './file.entity';
+
+export enum ProjectStatus {
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
+  ON_HOLD = 'on_hold',
+  CANCELLED = 'cancelled',
+}
 
 @Entity('projects')
 export class Project {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column()
-  name: string;
+  @Column({ length: 200 })
+  title: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description?: string;
 
-  @Column({ default: 'active' })
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: ProjectStatus,
+    default: ProjectStatus.ACTIVE,
+  })
+  status: ProjectStatus;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ type: 'date' })
   startDate: Date;
 
   @Column({ type: 'date', nullable: true })
-  endDate: Date;
+  endDate?: Date;
 
-  @Column({ default: '#3B82F6' })
-  color: string;
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  budget?: number;
 
-  @ManyToOne(() => User, (user) => user.projects)
-  @JoinColumn({ name: 'ownerId' })
-  owner: User;
+  @Column({ type: 'int', default: 0 })
+  progress: number;
 
   @Column()
-  ownerId: number;
-
-  @OneToMany(() => Task, (task) => task.project)
-  tasks: Task[];
+  ownerId: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Relations
+  @ManyToOne(() => User, (user) => user.ownedProjects)
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
+
+  @OneToMany(() => Task, (task) => task.project)
+  tasks: Task[];
+
+  @OneToMany(() => Comment, (comment) => comment.project)
+  comments: Comment[];
+
+  @OneToMany(() => File, (file) => file.project)
+  files: File[];
 }

@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { User } from '../entities/user.entity';
+import { User, UserRole } from '../entities/user.entity';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 
@@ -20,7 +20,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto) {
-    const { email, password, firstName, lastName } = registerDto;
+    const { email, password, name, avatar, role } = registerDto;
 
     // Check if user already exists
     const existingUser = await this.userRepository.findOne({
@@ -37,8 +37,9 @@ export class AuthService {
     const user = this.userRepository.create({
       email,
       password: hashedPassword,
-      firstName,
-      lastName,
+      name,
+      avatar,
+      role: role || UserRole.MEMBER,
     });
 
     const savedUser = await this.userRepository.save(user);
@@ -82,7 +83,7 @@ export class AuthService {
     };
   }
 
-  async validateUser(id: number): Promise<User | null> {
+  async validateUser(id: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { id } });
   }
 }
