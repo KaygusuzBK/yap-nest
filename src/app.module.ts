@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { ProjectsModule } from './projects/projects.module';
+import { TasksModule } from './tasks/tasks.module';
 import { User } from './entities/user.entity';
 import { Project } from './entities/project.entity';
 import { Task } from './entities/task.entity';
@@ -36,6 +38,8 @@ import { Notification } from './entities/notification.entity';
     }),
     TypeOrmModule.forFeature([User, Project, Task, Comment, File, Notification]),
     AuthModule,
+    ProjectsModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
