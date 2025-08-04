@@ -21,35 +21,15 @@ import { Notification } from './entities/notification.entity';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        const isProduction = configService.get('NODE_ENV') === 'production';
-        
-        if (isProduction) {
-          // Production'da in-memory database kullan
-          return {
-            type: 'sqlite',
-            database: ':memory:',
-            entities: [User, Project, Task, Comment, File, Notification],
-            synchronize: true,
-            logging: false,
-            dropSchema: true, // Her deployment'ta temiz başla
-          };
-        } else {
-          // Development'da PostgreSQL kullan
-          return {
-            type: 'postgres',
-            host: configService.get('DB_HOST') || 'localhost',
-            port: parseInt(configService.get('DB_PORT') || '5432', 10),
-            username: configService.get('DB_USERNAME') || 'postgres',
-            password: configService.get('DB_PASSWORD') || '',
-            database: configService.get('DB_DATABASE') || 'yap_nest',
-            entities: [User, Project, Task, Comment, File, Notification],
-            synchronize: configService.get('NODE_ENV') !== 'production',
-            logging: configService.get('NODE_ENV') !== 'production',
-            retryAttempts: 3,
-            retryDelay: 3000,
-            keepConnectionAlive: true,
-          };
-        }
+        // Vercel'de her zaman in-memory database kullan
+        return {
+          type: 'sqlite',
+          database: ':memory:',
+          entities: [User, Project, Task, Comment, File, Notification],
+          synchronize: true,
+          logging: false,
+          dropSchema: true,
+        };
       },
       inject: [ConfigService],
     }),

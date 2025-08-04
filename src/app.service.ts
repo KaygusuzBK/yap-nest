@@ -12,10 +12,8 @@ export class AppService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    // Production'da test kullanıcısı oluştur
-    if (process.env.NODE_ENV === 'production') {
-      await this.createTestUser();
-    }
+    // Her başlangıçta test kullanıcısı oluştur
+    await this.createTestUser();
   }
 
   private async createTestUser() {
@@ -35,10 +33,12 @@ export class AppService implements OnModuleInit {
         });
 
         await this.userRepository.save(testUser);
-        console.log('Test user created successfully');
+        console.log('✅ Test user created successfully');
+      } else {
+        console.log('✅ Test user already exists');
       }
     } catch (error) {
-      console.log('Test user creation failed:', error.message);
+      console.log('❌ Test user creation failed:', error.message);
     }
   }
 
