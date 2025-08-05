@@ -1,695 +1,485 @@
 {
-  "apiInfo": {
-    "title": "YAP Nest API",
-    "version": "1.0",
+  "apiSpecification": {
+    "version": "2.0",
+    "lastUpdated": "2025-08-05",
     "baseUrl": "http://localhost:3001",
-    "swaggerUrl": "http://localhost:3001/api",
-    "description": "Proje yönetim platformu API endpoints"
-  },
-  "endpoints": {
+    "productionUrl": "https://yap-nest-ln0v4e3dr-berkans-projects-d2fa45cc.vercel.app",
+    "description": "Complete YAP Nest Backend API with all missing components implemented",
+    
     "authentication": {
-      "register": {
-        "method": "POST",
-        "path": "/auth/register",
-        "description": "Yeni kullanıcı kaydı",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "name": "string (required)",
-          "email": "string (required, unique)",
-          "password": "string (required, min: 6)",
-          "avatar": "string (optional)",
-          "role": "enum (admin, manager, member)"
-        },
-        "response": {
-          "user": {
-            "id": "string (UUID)",
-            "name": "string",
-            "email": "string",
-            "avatar": "string | null",
-            "role": "string",
-            "isActive": "boolean",
-            "createdAt": "date",
-            "updatedAt": "date"
-          },
-          "token": "string",
-          "tokenType": "Bearer",
-          "expiresIn": "number"
-        }
-      },
-      "login": {
-        "method": "POST",
-        "path": "/auth/login",
-        "description": "Kullanıcı girişi",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "email": "string (required)",
-          "password": "string (required)",
-          "rememberMe": "boolean (optional)"
-        },
-        "response": {
-          "user": {
-            "id": "string (UUID)",
-            "name": "string",
-            "email": "string",
-            "avatar": "string | null",
-            "role": "string",
-            "isActive": "boolean",
-            "createdAt": "date",
-            "updatedAt": "date"
-          },
-          "token": "string",
-          "tokenType": "Bearer",
-          "expiresIn": "number"
-        }
-      },
-      "refresh": {
-        "method": "POST",
-        "path": "/auth/refresh",
-        "description": "Token yenileme",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "response": {
-          "user": {
-            "id": "string (UUID)",
-            "name": "string",
-            "email": "string",
-            "avatar": "string | null",
-            "role": "string",
-            "isActive": "boolean",
-            "createdAt": "date",
-            "updatedAt": "date"
-          },
-          "token": "string",
-          "tokenType": "Bearer",
-          "expiresIn": "number"
-        }
-      },
-      "profile": {
-        "method": "GET",
-        "path": "/auth/profile",
-        "description": "Kullanıcı profili",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "response": {
-          "id": "string (UUID)",
-          "name": "string",
-          "email": "string",
-          "avatar": "string | null",
-          "role": "string",
-          "isActive": "boolean",
-          "createdAt": "date",
-          "updatedAt": "date"
-        }
-      },
-      "forgotPassword": {
-        "method": "POST",
-        "path": "/auth/forgot-password",
-        "description": "Şifre sıfırlama isteği",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "email": "string (required)"
-        },
-        "response": {
-          "message": "string"
-        }
-      },
-      "resetPassword": {
-        "method": "POST",
-        "path": "/auth/reset-password",
-        "description": "Token ile şifre sıfırlama",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "token": "string (required)",
-          "newPassword": "string (required, min: 6)"
-        },
-        "response": {
-          "message": "string"
-        }
-      },
-      "changePassword": {
-        "method": "PUT",
-        "path": "/auth/change-password",
-        "description": "Şifre değiştirme",
-        "headers": {
-          "Authorization": "Bearer <token>",
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "currentPassword": "string (required)",
-          "newPassword": "string (required, min: 6)"
-        },
-        "response": {
-          "message": "string"
-        }
-      },
-      "logout": {
-        "method": "POST",
-        "path": "/auth/logout",
-        "description": "Çıkış",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "response": {
-          "message": "string"
-        }
+      "type": "JWT Bearer Token",
+      "testUser": {
+        "email": "test@example.com",
+        "password": "password123"
       }
     },
-    "projects": {
-      "create": {
-        "method": "POST",
-        "path": "/projects",
-        "description": "Yeni proje oluştur",
-        "headers": {
-          "Authorization": "Bearer <token>",
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "title": "string (required, max: 200)",
-          "description": "string (optional)",
-          "startDate": "date (required)",
-          "endDate": "date (optional)",
-          "budget": "number (optional)",
-          "progress": "number (optional, default: 0)"
-        },
-        "response": {
-          "id": "string (UUID)",
-          "title": "string",
-          "description": "string | null",
-          "status": "string",
-          "startDate": "date",
-          "endDate": "date | null",
-          "budget": "number | null",
-          "progress": "number",
-          "ownerId": "string (UUID)",
-          "createdAt": "date",
-          "updatedAt": "date",
-          "owner": {
-            "id": "string (UUID)",
-            "name": "string",
-            "email": "string",
-            "avatar": "string | null",
-            "role": "string",
-            "isActive": "boolean",
-            "createdAt": "date",
-            "updatedAt": "date"
-          }
-        }
-      },
-      "list": {
-        "method": "GET",
-        "path": "/projects",
-        "description": "Projeleri listele",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "response": [
-          {
-            "id": "string (UUID)",
-            "title": "string",
-            "description": "string | null",
-            "status": "string",
-            "startDate": "date",
-            "endDate": "date | null",
-            "budget": "number | null",
-            "progress": "number",
-            "ownerId": "string (UUID)",
-            "createdAt": "date",
-            "updatedAt": "date",
-            "owner": {
-              "id": "string (UUID)",
-              "name": "string",
-              "email": "string",
-              "avatar": "string | null",
-              "role": "string",
-              "isActive": "boolean",
-              "createdAt": "date",
-              "updatedAt": "date"
-            }
-          }
-        ]
-      },
-      "stats": {
-        "method": "GET",
-        "path": "/projects/stats",
-        "description": "Proje istatistikleri",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "response": {
-          "total": "number",
-          "active": "number",
-          "completed": "number",
-          "cancelled": "number",
-          "completionRate": "number"
-        }
-      },
-      "getById": {
-        "method": "GET",
-        "path": "/projects/:id",
-        "description": "Proje detayı",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "response": {
-          "id": "string (UUID)",
-          "title": "string",
-          "description": "string | null",
-          "status": "string",
-          "startDate": "date",
-          "endDate": "date | null",
-          "budget": "number | null",
-          "progress": "number",
-          "ownerId": "string (UUID)",
-          "createdAt": "date",
-          "updatedAt": "date",
-          "owner": {
-            "id": "string (UUID)",
-            "name": "string",
-            "email": "string",
-            "avatar": "string | null",
-            "role": "string",
-            "isActive": "boolean",
-            "createdAt": "date",
-            "updatedAt": "date"
-          }
-        }
-      },
-      "update": {
-        "method": "PATCH",
-        "path": "/projects/:id",
-        "description": "Proje güncelle",
-        "headers": {
-          "Authorization": "Bearer <token>",
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "title": "string (optional)",
-          "description": "string (optional)",
-          "status": "enum (active, completed, on_hold, cancelled)",
-          "startDate": "date (optional)",
-          "endDate": "date (optional)",
-          "budget": "number (optional)",
-          "progress": "number (optional)"
-        },
-        "response": {
-          "id": "string (UUID)",
-          "title": "string",
-          "description": "string | null",
-          "status": "string",
-          "startDate": "date",
-          "endDate": "date | null",
-          "budget": "number | null",
-          "progress": "number",
-          "ownerId": "string (UUID)",
-          "createdAt": "date",
-          "updatedAt": "date",
-          "owner": {
-            "id": "string (UUID)",
-            "name": "string",
-            "email": "string",
-            "avatar": "string | null",
-            "role": "string",
-            "isActive": "boolean",
-            "createdAt": "date",
-            "updatedAt": "date"
-          }
-        }
-      },
-      "delete": {
-        "method": "DELETE",
-        "path": "/projects/:id",
-        "description": "Proje sil",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "response": {
-          "message": "string"
-        }
-      }
-    },
-    "tasks": {
-      "create": {
-        "method": "POST",
-        "path": "/tasks",
-        "description": "Yeni görev oluştur",
-        "headers": {
-          "Authorization": "Bearer <token>",
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "title": "string (required, max: 200)",
-          "description": "string (optional)",
-          "projectId": "string (required)",
-          "assigneeId": "string (required)",
-          "priority": "enum (low, medium, high, urgent)",
-          "dueDate": "date (optional)",
-          "estimatedHours": "number (optional)",
-          "parentTaskId": "string (optional)",
-          "tags": "string[] (optional)"
-        },
-        "response": {
-          "id": "string (UUID)",
-          "title": "string",
-          "description": "string | null",
-          "status": "string",
-          "priority": "string",
-          "assigneeId": "string (UUID)",
-          "projectId": "string (UUID)",
-          "dueDate": "date | null",
-          "estimatedHours": "number | null",
-          "actualHours": "number | null",
-          "parentTaskId": "string (UUID) | null",
-          "tags": "string[] | null",
-          "createdAt": "date",
-          "updatedAt": "date",
-          "assignee": {
-            "id": "string (UUID)",
-            "name": "string",
-            "email": "string",
-            "avatar": "string | null",
-            "role": "string",
-            "isActive": "boolean",
-            "createdAt": "date",
-            "updatedAt": "date"
-          },
-          "project": {
-            "id": "string (UUID)",
-            "title": "string",
-            "description": "string | null",
-            "status": "string",
-            "startDate": "date",
-            "endDate": "date | null",
-            "budget": "number | null",
-            "progress": "number",
-            "ownerId": "string (UUID)",
-            "createdAt": "date",
-            "updatedAt": "date"
-          }
-        }
-      },
-      "list": {
-        "method": "GET",
-        "path": "/tasks",
-        "description": "Görevleri listele",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "query": {
-          "projectId": "string (optional) - Projeye göre filtrele"
-        },
-        "response": [
-          {
-            "id": "string (UUID)",
-            "title": "string",
-            "description": "string | null",
-            "status": "string",
-            "priority": "string",
-            "assigneeId": "string (UUID)",
-            "projectId": "string (UUID)",
-            "dueDate": "date | null",
-            "estimatedHours": "number | null",
-            "actualHours": "number | null",
-            "parentTaskId": "string (UUID) | null",
-            "tags": "string[] | null",
-            "createdAt": "date",
-            "updatedAt": "date",
-            "assignee": {
-              "id": "string (UUID)",
-              "name": "string",
-              "email": "string",
-              "avatar": "string | null",
-              "role": "string",
-              "isActive": "boolean",
-              "createdAt": "date",
-              "updatedAt": "date"
-            },
-            "project": {
-              "id": "string (UUID)",
-              "title": "string",
-              "description": "string | null",
-              "status": "string",
-              "startDate": "date",
-              "endDate": "date | null",
-              "budget": "number | null",
-              "progress": "number",
-              "ownerId": "string (UUID)",
-              "createdAt": "date",
-              "updatedAt": "date"
-            }
-          }
-        ]
-      },
-      "stats": {
-        "method": "GET",
-        "path": "/tasks/stats",
-        "description": "Görev istatistikleri",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "response": {
-          "total": "number",
-          "todo": "number",
-          "inProgress": "number",
-          "completed": "number",
-          "cancelled": "number",
-          "completionRate": "number"
-        }
-      },
-      "getById": {
-        "method": "GET",
-        "path": "/tasks/:id",
-        "description": "Görev detayı",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "response": {
-          "id": "string (UUID)",
-          "title": "string",
-          "description": "string | null",
-          "status": "string",
-          "priority": "string",
-          "assigneeId": "string (UUID)",
-          "projectId": "string (UUID)",
-          "dueDate": "date | null",
-          "estimatedHours": "number | null",
-          "actualHours": "number | null",
-          "parentTaskId": "string (UUID) | null",
-          "tags": "string[] | null",
-          "createdAt": "date",
-          "updatedAt": "date",
-          "assignee": {
-            "id": "string (UUID)",
-            "name": "string",
-            "email": "string",
-            "avatar": "string | null",
-            "role": "string",
-            "isActive": "boolean",
-            "createdAt": "date",
-            "updatedAt": "date"
-          },
-          "project": {
-            "id": "string (UUID)",
-            "title": "string",
-            "description": "string | null",
-            "status": "string",
-            "startDate": "date",
-            "endDate": "date | null",
-            "budget": "number | null",
-            "progress": "number",
-            "ownerId": "string (UUID)",
-            "createdAt": "date",
-            "updatedAt": "date"
-          }
-        }
-      },
-      "update": {
-        "method": "PATCH",
-        "path": "/tasks/:id",
-        "description": "Görev güncelle",
-        "headers": {
-          "Authorization": "Bearer <token>",
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "title": "string (optional)",
-          "description": "string (optional)",
-          "status": "enum (todo, in_progress, completed, cancelled)",
-          "priority": "enum (low, medium, high, urgent)",
-          "assigneeId": "string (optional)",
-          "dueDate": "date (optional)",
-          "estimatedHours": "number (optional)",
-          "actualHours": "number (optional)",
-          "tags": "string[] (optional)"
-        },
-        "response": {
-          "id": "string (UUID)",
-          "title": "string",
-          "description": "string | null",
-          "status": "string",
-          "priority": "string",
-          "assigneeId": "string (UUID)",
-          "projectId": "string (UUID)",
-          "dueDate": "date | null",
-          "estimatedHours": "number | null",
-          "actualHours": "number | null",
-          "parentTaskId": "string (UUID) | null",
-          "tags": "string[] | null",
-          "createdAt": "date",
-          "updatedAt": "date",
-          "assignee": {
-            "id": "string (UUID)",
-            "name": "string",
-            "email": "string",
-            "avatar": "string | null",
-            "role": "string",
-            "isActive": "boolean",
-            "createdAt": "date",
-            "updatedAt": "date"
-          },
-          "project": {
-            "id": "string (UUID)",
-            "title": "string",
-            "description": "string | null",
-            "status": "string",
-            "startDate": "date",
-            "endDate": "date | null",
-            "budget": "number | null",
-            "progress": "number",
-            "ownerId": "string (UUID)",
-            "createdAt": "date",
-            "updatedAt": "date"
-          }
-        }
-      },
-      "delete": {
-        "method": "DELETE",
-        "path": "/tasks/:id",
-        "description": "Görev sil",
-        "headers": {
-          "Authorization": "Bearer <token>"
-        },
-        "response": {
-          "message": "string"
-        }
-      }
-    },
-    "utility": {
+
+    "endpoints": {
       "health": {
-        "method": "GET",
-        "path": "/health",
-        "description": "Sağlık kontrolü",
-        "response": {
-          "status": "string",
-          "timestamp": "date"
+        "GET /health": {
+          "description": "Health check endpoint",
+          "response": {
+            "status": "ok",
+            "timestamp": "2025-08-05T16:43:53.294Z"
+          }
         }
       },
-      "swagger": {
-        "method": "GET",
-        "path": "/api",
-        "description": "Swagger dokümantasyonu"
+
+      "authentication": {
+        "POST /auth/register": {
+          "description": "Register new user",
+          "body": {
+            "name": "string (required)",
+            "email": "string (required, unique)",
+            "password": "string (required, min: 6)",
+            "role": "enum (admin, manager, member)",
+            "avatar": "string (optional)"
+          },
+          "response": {
+            "user": "User object",
+            "token": "JWT token",
+            "tokenType": "Bearer",
+            "expiresIn": 3600
+          }
+        },
+
+        "POST /auth/login": {
+          "description": "User login",
+          "body": {
+            "email": "string (required)",
+            "password": "string (required)",
+            "rememberMe": "boolean (optional)"
+          },
+          "response": {
+            "user": "User object",
+            "token": "JWT token",
+            "tokenType": "Bearer",
+            "expiresIn": 3600
+          }
+        },
+
+        "POST /auth/refresh": {
+          "description": "Refresh JWT token",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": {
+            "user": "User object",
+            "token": "JWT token",
+            "tokenType": "Bearer",
+            "expiresIn": 3600
+          }
+        },
+
+        "GET /auth/profile": {
+          "description": "Get user profile",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": "User object"
+        },
+
+        "POST /auth/logout": {
+          "description": "User logout",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": {
+            "message": "Logged out successfully"
+          }
+        },
+
+        "POST /auth/forgot-password": {
+          "description": "Request password reset",
+          "body": {
+            "email": "string (required)"
+          },
+          "response": {
+            "message": "Password reset email sent successfully"
+          }
+        },
+
+        "POST /auth/reset-password": {
+          "description": "Reset password with token",
+          "body": {
+            "token": "string (required)",
+            "newPassword": "string (required, min: 6)"
+          },
+          "response": {
+            "message": "Password reset successfully"
+          }
+        },
+
+        "PUT /auth/change-password": {
+          "description": "Change password",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "body": {
+            "currentPassword": "string (required)",
+            "newPassword": "string (required, min: 6)"
+          },
+          "response": {
+            "message": "Password changed successfully"
+          }
+        }
+      },
+
+      "projects": {
+        "GET /projects": {
+          "description": "Get all projects (filtered by user access)",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": "Array of Project objects"
+        },
+
+        "POST /projects": {
+          "description": "Create new project",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "body": {
+            "title": "string (required)",
+            "description": "string (required)",
+            "startDate": "date (required)",
+            "endDate": "date (optional)",
+            "budget": "number (optional)",
+            "progress": "number (optional, 0-100)"
+          },
+          "response": "Project object"
+        },
+
+        "GET /projects/:id": {
+          "description": "Get project by ID",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": "Project object"
+        },
+
+        "PATCH /projects/:id": {
+          "description": "Update project",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "body": {
+            "title": "string (optional)",
+            "description": "string (optional)",
+            "status": "enum (draft, active, on_hold, completed, cancelled)",
+            "startDate": "date (optional)",
+            "endDate": "date (optional)",
+            "budget": "number (optional)",
+            "progress": "number (optional)"
+          },
+          "response": "Project object"
+        },
+
+        "DELETE /projects/:id": {
+          "description": "Delete project",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": {
+            "message": "Project deleted successfully"
+          }
+        },
+
+        "GET /projects/stats": {
+          "description": "Get project statistics",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": {
+            "total": "number",
+            "active": "number",
+            "completed": "number",
+            "cancelled": "number",
+            "completionRate": "number"
+          }
+        }
+      },
+
+      "tasks": {
+        "GET /tasks": {
+          "description": "Get all tasks (with optional projectId filter)",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "query": {
+            "projectId": "string (optional)"
+          },
+          "response": "Array of Task objects"
+        },
+
+        "POST /tasks": {
+          "description": "Create new task",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "body": {
+            "title": "string (required)",
+            "description": "string (required)",
+            "projectId": "string (required)",
+            "assigneeId": "string (required)",
+            "priority": "enum (low, medium, high, urgent)",
+            "dueDate": "date (optional)",
+            "estimatedHours": "number (optional)",
+            "parentTaskId": "string (optional)",
+            "tags": "array of strings (optional)"
+          },
+          "response": "Task object"
+        },
+
+        "GET /tasks/:id": {
+          "description": "Get task by ID",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": "Task object"
+        },
+
+        "PATCH /tasks/:id": {
+          "description": "Update task",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "body": {
+            "title": "string (optional)",
+            "description": "string (optional)",
+            "status": "enum (todo, in_progress, review, completed, cancelled)",
+            "priority": "enum (low, medium, high, urgent)",
+            "assigneeId": "string (optional)",
+            "dueDate": "date (optional)",
+            "estimatedHours": "number (optional)",
+            "actualHours": "number (optional)",
+            "tags": "array of strings (optional)"
+          },
+          "response": "Task object"
+        },
+
+        "DELETE /tasks/:id": {
+          "description": "Delete task",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": {
+            "message": "Task deleted successfully"
+          }
+        },
+
+        "GET /tasks/stats": {
+          "description": "Get task statistics",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": {
+            "total": "number",
+            "todo": "number",
+            "inProgress": "number",
+            "review": "number",
+            "completed": "number",
+            "cancelled": "number"
+          }
+        }
+      },
+
+      "comments": {
+        "GET /comments": {
+          "description": "Get all comments (with optional filters)",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "query": {
+            "projectId": "string (optional)",
+            "taskId": "string (optional)",
+            "authorId": "string (optional)"
+          },
+          "response": "Array of Comment objects"
+        },
+
+        "POST /comments": {
+          "description": "Create new comment",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "body": {
+            "content": "string (required)",
+            "type": "enum (task, project, general)",
+            "projectId": "string (optional)",
+            "taskId": "string (optional)",
+            "parentCommentId": "string (optional)"
+          },
+          "response": "Comment object"
+        },
+
+        "GET /comments/:id": {
+          "description": "Get comment by ID",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": "Comment object"
+        },
+
+        "PATCH /comments/:id": {
+          "description": "Update comment",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "body": {
+            "content": "string (optional)",
+            "type": "enum (task, project, general)"
+          },
+          "response": "Comment object"
+        },
+
+        "DELETE /comments/:id": {
+          "description": "Delete comment",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": {
+            "message": "Comment deleted successfully"
+          }
+        },
+
+        "GET /comments/stats": {
+          "description": "Get comment statistics",
+          "headers": {
+            "Authorization": "Bearer <token>"
+          },
+          "response": {
+            "total": "number",
+            "byType": {
+              "task": "number",
+              "project": "number",
+              "general": "number"
+            }
+          }
+        }
       }
-    }
-  },
-  "enums": {
-    "UserRole": ["admin", "manager", "member"],
-    "ProjectStatus": ["active", "completed", "on_hold", "cancelled"],
-    "TaskStatus": ["todo", "in_progress", "completed", "cancelled"],
-    "TaskPriority": ["low", "medium", "high", "urgent"]
-  },
-  "exampleRequests": {
-    "register": {
-      "name": "Ahmet Yılmaz",
-      "email": "ahmet@example.com",
-      "password": "password123",
-      "role": "member"
     },
-    "login": {
-      "email": "ahmet@example.com",
-      "password": "password123",
-      "rememberMe": false
+
+    "dataModels": {
+      "User": {
+        "id": "uuid",
+        "name": "string",
+        "email": "string (unique)",
+        "avatar": "string (optional)",
+        "role": "enum (admin, manager, member)",
+        "isActive": "boolean",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+
+      "Project": {
+        "id": "uuid",
+        "title": "string",
+        "description": "string",
+        "status": "enum (draft, active, on_hold, completed, cancelled)",
+        "startDate": "timestamp",
+        "endDate": "timestamp (optional)",
+        "budget": "decimal",
+        "progress": "decimal (0-100)",
+        "ownerId": "uuid",
+        "owner": "User object",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+
+      "Task": {
+        "id": "uuid",
+        "title": "string",
+        "description": "string",
+        "status": "enum (todo, in_progress, review, completed, cancelled)",
+        "priority": "enum (low, medium, high, urgent)",
+        "assigneeId": "uuid",
+        "assignee": "User object",
+        "projectId": "uuid",
+        "project": "Project object",
+        "dueDate": "timestamp (optional)",
+        "estimatedHours": "decimal",
+        "actualHours": "decimal",
+        "parentTaskId": "uuid (optional)",
+        "parentTask": "Task object (optional)",
+        "tags": "array of strings",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+
+      "Comment": {
+        "id": "uuid",
+        "content": "string",
+        "type": "enum (task, project, general)",
+        "authorId": "uuid",
+        "author": "User object",
+        "taskId": "uuid (optional)",
+        "task": "Task object (optional)",
+        "projectId": "uuid (optional)",
+        "project": "Project object (optional)",
+        "parentCommentId": "uuid (optional)",
+        "parentComment": "Comment object (optional)",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      }
     },
-    "createProject": {
-      "title": "E-ticaret Platformu",
-      "description": "Modern e-ticaret platformu geliştirme projesi",
-      "startDate": "2024-01-15",
-      "endDate": "2024-06-30",
-      "budget": 50000,
-      "progress": 0
+
+    "features": {
+      "authentication": {
+        "JWT": "✅ Implemented",
+        "Password Reset": "✅ Implemented with Email Service",
+        "Role-based Access": "✅ Implemented",
+        "Token Refresh": "✅ Implemented"
+      },
+
+      "security": {
+        "Rate Limiting": "✅ Implemented (100 req/min, 1000 req/hour)",
+        "Global Error Handler": "✅ Implemented",
+        "CORS": "✅ Configured",
+        "Input Validation": "✅ Implemented with class-validator"
+      },
+
+      "database": {
+        "PostgreSQL": "✅ Connected",
+        "TypeORM": "✅ Configured",
+        "Relations": "✅ All entities properly related",
+        "Migrations": "✅ Synchronize enabled"
+      },
+
+      "documentation": {
+        "Swagger UI": "✅ Available at /api",
+        "API Documentation": "✅ Complete",
+        "Response Examples": "✅ Included"
+      },
+
+      "email": {
+        "Password Reset": "✅ Service implemented",
+        "Welcome Email": "✅ Service implemented",
+        "Task Assignment": "✅ Service implemented",
+        "Project Invitation": "✅ Service implemented"
+      }
     },
-    "createTask": {
-      "title": "Veritabanı Tasarımı",
-      "description": "E-ticaret platformu için veritabanı şeması oluşturma",
-      "projectId": "64562a24-61a2-4ee4-aa22-0987a119711f",
-      "assigneeId": "6168af51-e05b-4660-9c41-afd2e27e4bdf",
-      "priority": "high",
-      "dueDate": "2024-02-15",
-      "estimatedHours": 16,
-      "tags": ["database", "design"]
-    }
-  },
-  "errorResponses": {
-    "400": {
-      "statusCode": 400,
-      "message": "Bad Request - Geçersiz veri",
-      "error": "Bad Request"
+
+    "deployment": {
+      "local": {
+        "url": "http://localhost:3001",
+        "status": "✅ Running",
+        "database": "PostgreSQL (yap_nest)"
+      },
+      "production": {
+        "url": "https://yap-nest-ln0v4e3dr-berkans-projects-d2fa45cc.vercel.app",
+        "status": "✅ Deployed",
+        "database": "In-memory (Vercel serverless)"
+      }
     },
-    "401": {
-      "statusCode": 401,
-      "message": "Unauthorized - Token gerekli veya geçersiz",
-      "error": "Unauthorized"
-    },
-    "403": {
-      "statusCode": 403,
-      "message": "Forbidden - Yetkisiz erişim",
-      "error": "Forbidden"
-    },
-    "404": {
-      "statusCode": 404,
-      "message": "Not Found - Kaynak bulunamadı",
-      "error": "Not Found"
-    },
-    "409": {
-      "statusCode": 409,
-      "message": "Conflict - Çakışma (örn: email zaten kullanımda)",
-      "error": "Conflict"
-    },
-    "500": {
-      "statusCode": 500,
-      "message": "Internal Server Error - Sunucu hatası",
-      "error": "Internal Server Error"
-    }
-  },
-  "frontendUsage": {
-    "authentication": {
-      "login": "POST /auth/login ile token al, localStorage'a kaydet",
-      "logout": "POST /auth/logout ile token'ı temizle",
-      "refresh": "Token expire olduğunda POST /auth/refresh ile yenile",
-      "headers": "Her API isteğinde Authorization: Bearer <token> header'ı ekle"
-    },
-    "projects": {
-      "list": "GET /projects ile kullanıcının projelerini listele",
-      "create": "POST /projects ile yeni proje oluştur",
-      "update": "PATCH /projects/:id ile proje güncelle",
-      "delete": "DELETE /projects/:id ile proje sil",
-      "stats": "GET /projects/stats ile dashboard istatistikleri al"
-    },
-    "tasks": {
-      "list": "GET /tasks ile görevleri listele",
-      "filterByProject": "GET /tasks?projectId=:id ile projeye ait görevleri filtrele",
-      "create": "POST /tasks ile yeni görev oluştur",
-      "update": "PATCH /tasks/:id ile görev güncelle",
-      "delete": "DELETE /tasks/:id ile görev sil",
-      "stats": "GET /tasks/stats ile görev istatistikleri al"
+
+    "testing": {
+      "health": "✅ Working",
+      "authentication": "✅ Working",
+      "projects": "✅ Working",
+      "tasks": "✅ Working",
+      "comments": "✅ Working",
+      "swagger": "✅ Working"
     }
   }
 } 
