@@ -13,6 +13,7 @@ import { User, UserRole } from '../entities/user.entity';
 import { LoginDto } from '../dto/login.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { AuthResponseDto, UserResponseDto } from '../dto/auth-response.dto';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,7 @@ export class AuthService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
@@ -44,6 +46,9 @@ export class AuthService {
     });
 
     const savedUser = await this.userRepository.save(newUser);
+
+    // Send welcome email
+    await this.emailService.sendWelcomeEmail(savedUser.email, savedUser.name);
 
     const payload = { sub: savedUser.id, email: savedUser.email };
     const token = this.jwtService.sign(payload);
@@ -107,12 +112,20 @@ export class AuthService {
 
   async forgotPassword(email: string): Promise<{ message: string }> {
     const user = await this.userRepository.findOne({ where: { email } });
-    if (user) {
-      // In a real application, you would send an email with a reset token
-      // For now, we'll just return a success message
-      console.log(`Password reset requested for: ${email}`);
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-    return { message: 'If the email exists, a reset link has been sent' };
+
+    // Generate reset token
+    const resetToken = this.jwtService.sign(
+      { sub: user.id, email: user.email },
+      { expiresIn: '1h' },
+    );
+
+    // Send password reset email
+    await this.emailService.sendPasswordResetEmail(email, resetToken);
+
+    return { message: 'Password reset email sent successfully' };
   }
 
   async resetPassword(

@@ -1,29 +1,21 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from './user.entity';
 import { Project } from './project.entity';
+import { Comment } from './comment.entity';
 
 export enum TaskStatus {
   TODO = 'todo',
   IN_PROGRESS = 'in_progress',
   REVIEW = 'review',
   COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
+  CANCELLED = 'cancelled'
 }
 
 export enum TaskPriority {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
-  URGENT = 'urgent',
+  URGENT = 'urgent'
 }
 
 @Entity('tasks')
@@ -31,45 +23,57 @@ export class Task {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 200 })
+  @Column('varchar', { length: 255 })
   title: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column('text')
   description: string;
 
-  @Column({ 
-    type: 'varchar', 
-    default: TaskStatus.TODO,
-    enum: Object.values(TaskStatus)
+  @Column({
+    type: 'varchar',
+    enum: Object.values(TaskStatus),
+    default: TaskStatus.TODO
   })
   status: TaskStatus;
 
-  @Column({ 
-    type: 'varchar', 
-    default: TaskPriority.MEDIUM,
-    enum: Object.values(TaskPriority)
+  @Column({
+    type: 'varchar',
+    enum: Object.values(TaskPriority),
+    default: TaskPriority.MEDIUM
   })
   priority: TaskPriority;
 
-  @Column({ type: 'uuid' })
+  @Column('uuid')
   assigneeId: string;
 
-  @Column({ type: 'uuid' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'assigneeId' })
+  assignee: User;
+
+  @Column('uuid')
   projectId: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @ManyToOne(() => Project, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'projectId' })
+  project: Project;
+
+  @Column('timestamp', { nullable: true })
   dueDate: Date;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  @Column('decimal', { precision: 5, scale: 2, default: 0 })
   estimatedHours: number;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  @Column('decimal', { precision: 5, scale: 2, default: 0 })
   actualHours: number;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column('uuid', { nullable: true })
   parentTaskId: string;
 
-  @Column({ type: 'simple-array', nullable: true })
+  @ManyToOne(() => Task, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'parentTaskId' })
+  parentTask: Task;
+
+  @Column('text', { array: true, default: [] })
   tags: string[];
 
   @CreateDateColumn()
@@ -79,18 +83,9 @@ export class Task {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'assigneeId' })
-  assignee: User;
-
-  @ManyToOne(() => Project, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'projectId' })
-  project: Project;
-
-  @ManyToOne(() => Task, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'parentTaskId' })
-  parentTask: Task;
-
-  @OneToMany(() => Task, (task) => task.parentTask)
+  @OneToMany(() => Task, task => task.parentTask)
   subtasks: Task[];
+
+  @OneToMany(() => Comment, comment => comment.task)
+  comments: Comment[];
 }

@@ -1,21 +1,14 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from './user.entity';
 import { Task } from './task.entity';
+import { Comment } from './comment.entity';
 
 export enum ProjectStatus {
+  DRAFT = 'draft',
   ACTIVE = 'active',
-  COMPLETED = 'completed',
   ON_HOLD = 'on_hold',
-  CANCELLED = 'cancelled',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled'
 }
 
 @Entity('projects')
@@ -23,33 +16,37 @@ export class Project {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 200 })
+  @Column('varchar', { length: 255 })
   title: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column('text')
   description: string;
 
-  @Column({ 
-    type: 'varchar', 
-    default: ProjectStatus.ACTIVE,
-    enum: Object.values(ProjectStatus)
+  @Column({
+    type: 'varchar',
+    enum: Object.values(ProjectStatus),
+    default: ProjectStatus.DRAFT
   })
   status: ProjectStatus;
 
-  @Column({ type: 'timestamp' })
+  @Column('timestamp')
   startDate: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column('timestamp', { nullable: true })
   endDate: Date;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
   budget: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column('decimal', { precision: 5, scale: 2, default: 0 })
   progress: number;
 
-  @Column({ type: 'uuid' })
+  @Column('uuid')
   ownerId: string;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -58,10 +55,9 @@ export class Project {
   updatedAt: Date;
 
   // Relations
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'ownerId' })
-  owner: User;
-
-  @OneToMany(() => Task, (task) => task.project)
+  @OneToMany(() => Task, task => task.project)
   tasks: Task[];
+
+  @OneToMany(() => Comment, comment => comment.project)
+  comments: Comment[];
 }

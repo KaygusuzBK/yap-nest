@@ -178,6 +178,7 @@ export class ProjectsService {
     newStatus: ProjectStatus,
   ): boolean {
     const validTransitions: Record<ProjectStatus, ProjectStatus[]> = {
+      [ProjectStatus.DRAFT]: [ProjectStatus.ACTIVE, ProjectStatus.CANCELLED],
       [ProjectStatus.ACTIVE]: [
         ProjectStatus.COMPLETED,
         ProjectStatus.CANCELLED,
